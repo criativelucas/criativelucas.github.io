@@ -12,7 +12,9 @@ test('a página tem os três blocos gerados a partir dos dados', () => {
   for (const m of ['<!--INDICE-->', '<!--FICHAS-->', '<!--CONTATO-->']) assert.ok(html.includes(m), m);
 });
 test('a página não fala de código', () => {
-  assert.doesNotMatch(html, /github|código/i);
+  // o endereço do próprio site (criativelucas.github.io) em atributos não conta: não é texto visível
+  const semEndereco = html.replace(/(href|content)="https:\/\/criativelucas\.github\.io[^"]*"/g, '');
+  assert.doesNotMatch(semEndereco, /github|código/i);
 });
 test('compartilhar o link mostra título, descrição e imagem', () => {
   assert.match(html, /<meta property="og:image" content="https:\/\/criativelucas\.github\.io\/og\.jpg">/);
