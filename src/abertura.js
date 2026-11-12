@@ -5,6 +5,7 @@ const FONTE = '"Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif';
 const MONO = '"DM Mono", ui-monospace, Menlo, monospace';
 const TINTA = [237, 236, 232], ACENTO = [200, 255, 62], APAGADO = [128, 127, 122];
 const F = 1000;   // distância focal da "câmera" (perspectiva das partículas)
+const CHEGADA = 3.2; // segundos que a câmera leva para chegar de frente ao nome
 
 const espera = ms => new Promise(r => setTimeout(r, ms));
 const lim = (v, a = 0, b = 1) => Math.min(Math.max(v, a), b);
@@ -175,10 +176,19 @@ export async function iniciarAbertura() {
     const zoom = 1 + p * 0.14;
     const entra = suave(0, 0.8, boot);
 
+    // Câmera: começa longe, de lado, por baixo e inclinada, e vem até ficar de frente para o nome.
+    // Depois, conforme a página rola, ela gira de novo e avança para dentro da malha.
+    const voo = 1 - suave(0, CHEGADA, boot);                 // 1 no começo, 0 quando pousa
+    const giro = suave(0.12, 0.9, p);
+    const guinada = -0.95 * voo + 0.42 * giro, arfagem = 0.5 * voo - 0.1 * giro, rolo = 0.16 * voo;
+    const recuo = 1150 * voo - 260 * giro;
+    const cg = Math.cos(guinada), sg = Math.sin(guinada), ca = Math.cos(arfagem), sa = Math.sin(arfagem), cr = Math.cos(rolo), sr = Math.sin(rolo);
+    const pouso = suave(CHEGADA - 0.7, CHEGADA + 0.2, boot);  // os enfeites planos só entram com a câmera de frente
+
     chao(t, p, entra);
 
     // falha (glitch) de vez em quando: uma faixa do nome escorrega para o lado por um instante
-    if (t > falha.prox && p < 0.3 && boot > 2) {
+    if (t > falha.prox && p < 0.3 && boot > CHEGADA + 0.5) {
       const c = (Math.random() - 0.5) * M.H, h = M.H * (0.06 + Math.random() * 0.14);
       falha = { ate: t + 0.09 + Math.random() * 0.08, prox: t + 2.2 + Math.random() * 3, y0: c - h / 2, y1: c + h / 2, dx: (Math.random() < 0.5 ? -1 : 1) * (8 + Math.random() * 22) };
     }
@@ -205,8 +215,12 @@ export async function iniciarAbertura() {
         y += Math.sin(t * 1.6 + M.hx[i] * 0.012) * 0.8;
         if (glitch && M.hy[i] > falha.y0 && M.hy[i] < falha.y1) x += falha.dx;
       }
+      const xr = x * cr - y * sr, yr = x * sr + y * cr;       // rolo
+      const xg = xr * cg + z * sg, zg = z * cg - xr * sg;     // guinada
+      const ya = yr * ca - zg * sa;                            // arfagem
+      z = yr * sa + zg * ca - recuo;
       const k = F / Math.max(F - z, 60);
-      M.px[i] = cx + x * k; M.py[i] = cy + y * k;
+      M.px[i] = cx + xg * k; M.py[i] = cy + ya * k;
       // grupo: 0..5 tinta (presos, por transparência), 6..11 acento (soltando), 255 invisível
       let a, g;
       if (q > 0) { a = 1 - suave(0.4, 1, q); g = 6; } else { a = 0.25 + 0.6 * m; g = 0; }
@@ -259,7 +273,7 @@ export async function iniciarAbertura() {
     const w = M.W * zoom / 2 + 18, h = M.H * zoom / 2 + 14;
 
     // contorno tracejado do nome, andando como "formigas"
-    const aContorno = 0.5 * suave(0.6, 1.6, boot) * (1 - suave(0.015, 0.12, p));
+    const aContorno = 0.5 * pouso * (1 - suave(0.015, 0.12, p));
     if (aContorno > 0.01) {
       ctx.save();
       ctx.translate(cx, cy); ctx.scale(zoom, zoom);
@@ -272,7 +286,7 @@ export async function iniciarAbertura() {
     }
 
     // cantoneiras e medida em volta do nome
-    const aCaixa = entra * (1 - suave(0, 0.2, p));
+    const aCaixa = pouso * (1 - suave(0, 0.12, p));
     if (aCaixa > 0.01) {
       const c = 14;
       ctx.lineWidth = 1; ctx.strokeStyle = cor(ACENTO, 0.9 * aCaixa);
@@ -290,7 +304,7 @@ export async function iniciarAbertura() {
     }
 
     // linha de varredura parada (antes de rolar)
-    const aScan = entra * (1 - suave(0, 0.05, p));
+    const aScan = pouso * (1 - suave(0, 0.05, p));
     const ciclo = (t * 0.32) % 1.5;
     if (aScan > 0.01 && ciclo < 1) {
       const y = cy - h + ciclo * h * 2;
