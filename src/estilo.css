@@ -36,6 +36,35 @@ main, .rodape { position: relative; z-index: 1; }
 .topo a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .3s; }
 .topo a:hover::after { transform: scaleX(1); transform-origin: left; }
 
+/* ---------- Abertura: o nome em malha que se desfaz ao rolar (só com JavaScript e sem "reduzir movimento") ---------- */
+.abertura { display: none; }
+html.com-abertura .abertura { display: block; position: relative; z-index: 1; height: 320svh; background: var(--fundo); }
+.palco { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.malha { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.abertura-nome {
+  position: absolute; inset: 0; display: grid; place-content: center; text-align: center;
+  font-size: clamp(3rem, 13vw, 14rem); font-weight: 800; line-height: .84; letter-spacing: -.05em; text-transform: uppercase;
+  color: transparent; -webkit-text-stroke: 1px var(--tinta);
+}
+html.abertura-viva .abertura-nome { display: none; }
+.hud > * { position: absolute; margin: 0; color: var(--apagado); line-height: 1.7; }
+.hud b { color: var(--tinta); font-weight: 500; font-variant-numeric: tabular-nums; }
+.hud-a { left: var(--margem); top: 4.4rem; }
+.hud-d { right: var(--margem); top: 4.4rem; text-align: right; }
+.hud-b { left: var(--margem); bottom: 1.6rem; }
+.hud-c { right: var(--margem); bottom: 1.6rem; display: flex; flex-direction: column; align-items: flex-end; gap: .7rem; color: var(--tinta) !important; }
+.hud-c span { display: inline-block; color: var(--acento); animation: quica 1.6s ease-in-out infinite; }
+.hud-c:hover { color: var(--acento) !important; }
+.barra { display: block; position: relative; width: 9rem; height: 1px; background: var(--fio); }
+.barra i { position: absolute; inset: 0; background: var(--acento); transform-origin: left; transform: scaleX(var(--p, 0)); }
+.hud-fim { left: 50%; top: 50%; translate: -50% -50%; color: var(--acento) !important; opacity: 0; white-space: nowrap; }
+.hud-fim span { animation: pisca 1s steps(1) infinite; }
+@keyframes pisca { 50% { opacity: 0; } }
+/* com a abertura, o nome da capa espera chegar na tela para subir */
+html.com-abertura .capa h1 span { animation: none; opacity: 0; transform: translateY(40%); transition: opacity .9s, transform .9s cubic-bezier(.2, .8, .2, 1); }
+html.com-abertura .capa h1 span + span { transition-delay: .08s; }
+html.com-abertura .capa.entrou h1 span { opacity: 1; transform: none; }
+
 /* ---------- Capa ---------- */
 .capa {
   min-height: 100svh; padding: 5.5rem var(--margem) 2rem;

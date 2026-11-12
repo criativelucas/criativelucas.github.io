@@ -9,6 +9,7 @@ import {
 const DIST = 1200;
 const PROPORCAO_IMG = 4 / 3;
 const TROCA = 0.75;   // segundos da transição entre dois projetos
+const lim01 = v => Math.min(Math.max(v, 0), 1);
 
 const VERTICE = /* glsl */`
   uniform float uOnda, uTempo;
@@ -40,7 +41,7 @@ const FRAGMENTO = /* glsl */`
   }`;
 
 // retorno: { mostrar(id) }
-export async function iniciar({ canvas, moldura, imagens, inicial }) {
+export async function iniciar({ canvas, moldura, imagens, inicial, capa }) {
   const parado = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -113,9 +114,9 @@ export async function iniciar({ canvas, moldura, imagens, inicial }) {
     const agora = t / 1000, dt = Math.min(agora - antes, 0.05);
     antes = agora;
 
-    const rolado = scrollY;
+    const rolado = capa ? -capa.getBoundingClientRect().top : scrollY;   // quanto a capa já subiu (negativo = ainda abaixo, na abertura)
     const r = moldura.getBoundingClientRect();
-    const verDado = rolado < A;
+    const verDado = rolado < A && rolado > -A * 0.7;
     const verPrevia = r.bottom > 0 && r.top < A;
     if (!verDado && !verPrevia) {            // nada 3D na tela: esconde a camada e não gasta bateria
       if (!limpo) { canvas.style.visibility = 'hidden'; limpo = true; }
@@ -129,7 +130,7 @@ export async function iniciar({ canvas, moldura, imagens, inicial }) {
     if (verDado) {
       if (!parado) { dado.rotation.y += dt * 0.16; dado.rotation.x += dt * 0.07; dentro.rotation.y -= dt * 0.4; }
       dado.position.set(L * (L < 820 ? 0.2 : 0.24) + ix * 26, A * 0.1 - iy * 18 + rolado * 0.8, 0);
-      const some = Math.max(1 - rolado / (A * 0.85), 0);
+      const some = lim01(1 - rolado / (A * 0.85)) * lim01(1 + rolado / (A * 0.7));
       fora.material.opacity = 0.55 * some; dentro.material.opacity = 0.2 * some; pontos.material.opacity = some;
     }
 

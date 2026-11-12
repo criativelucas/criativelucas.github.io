@@ -14,6 +14,7 @@
   <meta property="og:image" content="https://criativelucas.github.io/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.add('com-abertura')</script>
   <link rel="stylesheet" href="/src/estilo.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +33,20 @@
   </header>
 
   <main>
+    <section class="abertura">
+      <div class="palco">
+        <p class="abertura-nome" aria-hidden="true">Lucas<br>Antonio</p>
+        <canvas class="malha" aria-hidden="true"></canvas>
+        <div class="hud mono">
+          <p class="hud-a" aria-hidden="true">Portfólio // 2026<br>Manaus · Brasil</p>
+          <p class="hud-d" aria-hidden="true">Malha do nome<br><b data-coord>X +0.000 · Y +0.000</b></p>
+          <p class="hud-b" aria-hidden="true">Vértices <b data-vertices>0</b><br>Integridade <b data-integridade>100%</b></p>
+          <a class="hud-c" href="#inicio">Role para entrar <span aria-hidden="true">↓</span><i class="barra" aria-hidden="true"><i></i></i></a>
+          <p class="hud-fim" aria-hidden="true">Abrindo portfólio<span>_</span></p>
+        </div>
+      </div>
+    </section>
+
     <section id="inicio" class="capa">
       <p class="mono nota">Portfólio — 2026<br>Manaus, Brasil</p>
       <h1><span>Lucas</span><span class="vazado">Antonio</span></h1>

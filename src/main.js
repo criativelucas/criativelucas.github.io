@@ -1,5 +1,12 @@
 // A página funciona inteira sem este arquivo. Aqui só entra o que é vivo:
 // trocar a ficha quando o mouse passa num projeto, o cursor "Abrir", copiar o Pix e ligar a cena 3D.
+import { iniciarAbertura } from './abertura.js';
+
+// Abertura (nome em malha que se desfaz ao rolar). Se der errado, some e a página abre na capa.
+iniciarAbertura().catch(erro => {
+  console.warn('Abertura indisponível:', erro);
+  document.documentElement.classList.remove('com-abertura', 'abertura-viva');
+});
 
 const linhas = [...document.querySelectorAll('.linha')];
 const fichas = [...document.querySelectorAll('.ficha, .legenda')];
@@ -64,6 +71,7 @@ if (window.WebGL2RenderingContext) {
       cena = await iniciar({
         canvas: document.getElementById('gl'),
         moldura: document.getElementById('moldura'),
+        capa: document.getElementById('inicio'),
         imagens: Object.fromEntries([...document.querySelectorAll('.ficha')].map(f => [f.dataset.id, f.getAttribute('src')])),
         inicial: ativa,
       });
