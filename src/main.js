@@ -31,7 +31,7 @@ const semMouse = matchMedia('(hover: none)');
 function porRolagem() {
   if (!semMouse.matches) return;
   const base = previa.getBoundingClientRect().bottom - 2;
-  const linha = linhas.find(l => l.getBoundingClientRect().top >= base) ?? linhas.at(-1);
+  const linha = linhas.find(l => l.getBoundingClientRect().top >= base) || linhas[linhas.length - 1];
   ativar(linha.dataset.id);
 }
 addEventListener('scroll', porRolagem, { passive: true });

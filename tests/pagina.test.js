@@ -21,3 +21,7 @@ test('compartilhar o link mostra título, descrição e imagem', () => {
   assert.match(html, /<meta property="og:title" content="Lucas Antonio/);
   assert.match(html, /<link rel="canonical" href="https:\/\/criativelucas\.github\.io\/">/);
 });
+test('o CSS publicado funciona em iPhones antigos (sem sintaxe nova de @media)', async () => {
+  const { default: config } = await import('../vite.config.js');
+  assert.ok([].concat(config.build.cssTarget).some(t => /^safari1[0-4]$/.test(t)), 'build.cssTarget precisa mirar um Safari antigo');
+});
