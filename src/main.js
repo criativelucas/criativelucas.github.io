@@ -26,13 +26,21 @@ for (const l of linhas) {
   l.addEventListener('focus', () => ativar(l.dataset.id));
 }
 
-// Sem mouse (celular): o projeto ativo é a primeira linha inteira logo abaixo da prévia enquanto a lista rola.
+// Sem mouse (celular): uma "linha de leitura" desce da base da prévia até o pé da tela conforme a lista rola.
+// O projeto ativo é o último que essa linha já alcançou. Assim todos os 12 passam pela prévia, inclusive os
+// últimos, que nunca chegam a encostar na prévia porque a lista acaba antes.
 const semMouse = matchMedia('(hover: none)');
+const caixaLista = document.querySelector('.lista');
 function porRolagem() {
   if (!semMouse.matches) return;
-  const base = previa.getBoundingClientRect().bottom - 2;
-  const linha = linhas.find(l => l.getBoundingClientRect().top >= base) || linhas[linhas.length - 1];
-  ativar(linha.dataset.id);
+  const base = previa.getBoundingClientRect().bottom;
+  const l = caixaLista.getBoundingClientRect();
+  const visivel = innerHeight - base;
+  const avanco = Math.min(Math.max((base - l.top) / Math.max(l.height - visivel, 1), 0), 1);
+  const leitura = base + avanco * visivel;
+  let ativaAgora = linhas[0];
+  for (const linha of linhas) if (linha.getBoundingClientRect().top <= leitura - 8) ativaAgora = linha;
+  ativar(ativaAgora.dataset.id);
 }
 addEventListener('scroll', porRolagem, { passive: true });
 
